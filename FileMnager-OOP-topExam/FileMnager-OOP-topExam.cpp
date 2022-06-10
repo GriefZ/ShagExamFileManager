@@ -1,5 +1,4 @@
-﻿
-#include <iostream>
+﻿#include <iostream>
 #include "MainWnd.h"
 #include <fstream>
 #include <typeinfo>
@@ -53,6 +52,7 @@ int Menu(std::list<std::string>& punkts)
         {
             num = 1;
             system("cls");
+            showDirR("e:\\1\\");
             std::cout << "\n\t\tMenu";
             for (auto p = punkts.begin(); p != punkts.end(); p++)
             {
@@ -87,6 +87,8 @@ int Menu(std::list<std::string>& punkts)
 
 int main(int args, char* argv[])
 {
+    MainWnd mw;
+    mw.LoopMsg();
     std::list<std::string> menuItems
     {
         "Create file",
@@ -109,7 +111,6 @@ int main(int args, char* argv[])
     while (!exit)
     {
         system("cls");
-        showDirR(cur);
         switch (Menu(menuItems))
         {
         case 1:
@@ -187,4 +188,3 @@ int main(int args, char* argv[])
     }
 
 }
-
