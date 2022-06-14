@@ -45,11 +45,13 @@ public:
 		if (m_console == INVALID_HANDLE_VALUE)
 		{
 			std::cout << "\nError get console";
+			system("pause");
 			return;
 		}
 		if (!GetConsoleScreenBufferInfo(m_console, &m_screen))
 		{
 			std::cout << "\nError get screen size";
+			system("pause");
 			return;
 		}
 		int w = m_screen.srWindow.Right - m_screen.srWindow.Left;
@@ -62,8 +64,6 @@ public:
 	{
 		int lal, ral;
 		system("cls");
-		m_lvp.FillFiles("e:\\1\\");
-		m_rvp.FillFiles("e:\\1\\");
 		m_lvp.Fill();
 		m_rvp.Fill();
 		m_footer.Fill(1);
@@ -76,13 +76,16 @@ public:
 	{
 		ViewPort* aVP = &m_lvp;
 		int key = 0;
+		m_lvp.FillFiles("e:\\1\\");
+		m_rvp.FillFiles("e:\\2\\");
 		while (true)
 		{
 			Show();
+			std::cout << aVP->GetPath() << "\\";
 			key = _getch();
 			if (key == 224)
 				key = _getch();
-			std::cout << "\n" << key;
+
 			switch (key)
 			{
 			case 72:
@@ -93,6 +96,14 @@ public:
 			case 75:
 			case 77:
 				(aVP == &m_lvp) ? aVP = &m_rvp : aVP = &m_lvp;
+				break;
+			case 13://Enter
+				aVP->Enter();
+			case 59://F1
+			case 60://F2
+			case 61://F3
+			case 62://F4
+			case 63://F5
 				break;
 			case 27://Esc
 				return;

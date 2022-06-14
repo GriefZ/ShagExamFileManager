@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <algorithm>
 namespace fs = std::filesystem;
 class ViewPort
 {
@@ -12,6 +13,23 @@ class ViewPort
 	std::vector<fs::path> m_files;
 	int m_active;
 	int m_maxActive;
+
+	class Cir1251to866
+	{
+	public:
+		void operator()(char& inp1251)
+		{
+			if ((unsigned char)inp1251 > 191 && (unsigned char)inp1251 < 239)
+				inp1251 -= 64;
+			else if ((unsigned char)inp1251 > 239)
+				inp1251 -= 16;
+			else if ((unsigned char)inp1251 == 168)
+				inp1251 += 72;
+			else if ((unsigned char)inp1251 == 184)
+				inp1251 += 57;
+		}
+	};
+
 public:
 	ViewPort() :m_width{ 0 }, m_height{ 0 }, m_active{ 0 }, m_maxActive{ 0 }
 	{
@@ -42,7 +60,22 @@ public:
 			m_files.push_back(p);
 			i++;
 		}
-		m_maxActive = m_files.size() - 1;
+		m_maxActive = m_files.size();
+		return *this;
+	}
+	ViewPort& Enter()
+	{
+		if (m_active == 1 && m_files[0].has_parent_path())
+			FillFiles(m_files[0].parent_path());
+		else if (fs::is_directory(m_files[m_active - 1]))
+		{
+			FillFiles(m_files[m_active - 1]);
+		}
+
+		/*system("cls");
+		std::cout << "\n\tis dir: " << (fs::is_directory((m_files[m_active - 1])) ? "true" : "false")
+			<< "\tsize " << fs::file_size(m_files[m_active - 1]) << "bytes" << std::endl;
+		system("pause");*/
 		return *this;
 	}
 	ViewPort& MoveCursor(int key)
@@ -64,6 +97,11 @@ public:
 		}
 		return *this;
 	}
+	std::string GetPath()
+	{
+		std::cout << "parpath " << m_files[0].parent_path().string() << " rootpath " << m_files[0].root_path().string() << "||";
+		return m_files[0].string();
+	}
 	ViewPort& Fill(int key = 0)
 	{
 		std::string help1{ "F1 - Open" };
@@ -84,15 +122,24 @@ public:
 			m_vp[0] = "\xc9" + std::string(m_width - 2, '\xcd') + "\xbb";
 			for (int i = 1; i < m_height - 1; i++)
 			{
-				if (i < m_files.size())
-					m_vp[i] = "\xba" + std::string((m_active == i) ? "\x1b[30;47m" : "") + m_files[i].filename().string() + std::string((m_active == i) ? "\x1b[0m" : "") + std::string(m_width - 2 - m_files[i].filename().string().length(), ' ') + "\xba";
+				if(i==1)
+					m_vp[i] = "\xba" + std::string((m_active == i) ? "\x1b[30;47m" : "") + std::string("..") 
+					+ std::string((m_active == i) ? "\x1b[0m" : "") + std::string(m_width - 4, ' ') + "\xba";
+				else if (i > 1 && i <= m_files.size())
+				{
+					std::string tmp = m_files[i - 1].filename().string();
+					std::for_each(tmp.begin(), tmp.end(), Cir1251to866());
+					m_vp[i] = "\xba" + std::string((m_active == i) ? "\x1b[30;47m" : "") + tmp
+						+ std::string((m_active == i) ? "\x1b[0m" : "") + std::string(m_width - 2 - tmp.length(), ' ') + "\xba";
+				}
+					
 				else
 					m_vp[i] = "\xba" + std::string(m_width - 2, ' ') + "\xba";
 			}
 			m_vp[m_height - 1] = "\xc8" + std::string(m_width - 2, '\xcd') + "\xbc";
 			break;
 		}
-		
+
 		return *this;
 	}
 	ViewPort& Show()
