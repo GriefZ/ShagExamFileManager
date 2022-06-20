@@ -76,8 +76,8 @@ public:
 	{
 		ViewPort* aVP = &m_lvp;
 		int key = 0;
-		m_lvp.FillFiles("e:\\1\\");
-		m_rvp.FillFiles("e:\\2\\");
+		m_lvp.FillFiles("e:\\1");
+		m_rvp.FillFiles("d:\\");
 		while (true)
 		{
 			Show();
@@ -99,11 +99,18 @@ public:
 				break;
 			case 13://Enter
 				aVP->Enter();
+				break;
 			case 59://F1
-			case 60://F2
+				break;
+			case 60://F2-Create folder
+				aVP->createFile();
+				break;
 			case 61://F3
+				break;
 			case 62://F4
-			case 63://F5
+				break;
+			case 63://F5-Delete
+				aVP->deleteFile();
 				break;
 			case 27://Esc
 				return;
