@@ -105,7 +105,8 @@ public:
 			case 60://F2-Create folder
 				aVP->createFile();
 				break;
-			case 61://F3
+			case 61://F3-Copy
+				aVP->copyFile((aVP == &m_lvp) ? m_rvp : m_lvp);
 				break;
 			case 62://F4
 				break;

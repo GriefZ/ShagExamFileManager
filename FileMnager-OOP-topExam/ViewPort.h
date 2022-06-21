@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 #include <filesystem>
 #include <algorithm>
 namespace fs = std::filesystem;
@@ -27,6 +28,22 @@ class ViewPort
 				inp1251 += 72;
 			else if ((unsigned char)inp1251 == 184)
 				inp1251 += 57;
+		}
+	};
+
+	class Cir866to1251
+	{
+	public:
+		void operator()(char& inp866)
+		{
+			if ((unsigned char)inp866 > 127 && (unsigned char)inp866 < 176)
+				inp866 += 64;
+			else if ((unsigned char)inp866 > 223 && (unsigned char)inp866 < 240)
+				inp866 += 16;
+			else if ((unsigned char)inp866 == 240)
+				inp866 -= 72;
+			else if ((unsigned char)inp866 == 241)
+				inp866 -= 57;
 		}
 	};
 
@@ -101,10 +118,17 @@ public:
 		system("pause");*/
 		return *this;
 	}
-
+	void copyFile(const ViewPort& to)
+	{
+		std::string tmp = m_files[m_active - 1].filename().string();
+		fs::copy(m_files[m_active - 1], to.m_files[0].string()+ "\\" + tmp, std::filesystem::copy_options::recursive);
+	}
 	void deleteFile()
 	{
-		fs::remove(m_files[m_active-1]);
+		if(!fs::is_empty(m_files[m_active - 1]))
+			fs::remove_all(m_files[m_active-1]);
+		else
+			fs::remove(m_files[m_active - 1]);
 		FillFiles(m_files[0]);
 	}
 	void createFile()
@@ -112,10 +136,17 @@ public:
 		std::cout << "\nInpun file name\n";
 		std::string tmp;
 		std::getline(std::cin, tmp);
-		std::for_each(tmp.begin(), tmp.end(), Cir1251to866());
+		std::for_each(tmp.begin(), tmp.end(), Cir866to1251());
 		fs::path fiio = m_files[0];
 		fiio += "\\" + tmp;
-		fs::create_directory(fiio);
+		if (fiio.has_extension())
+		{
+			std::ofstream file;
+			file.open(fiio);
+			file.close();
+		}
+		else
+			fs::create_directory(fiio);
 		FillFiles(m_files[0]);
 	}
 	
