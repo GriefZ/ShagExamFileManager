@@ -118,10 +118,11 @@ public:
 		system("pause");*/
 		return *this;
 	}
-	void copyFile(const ViewPort& to)
+	void copyFile(ViewPort& to)
 	{
 		std::string tmp = m_files[m_active - 1].filename().string();
 		fs::copy(m_files[m_active - 1], to.m_files[0].string()+ "\\" + tmp, std::filesystem::copy_options::recursive);
+		to.FillFiles(to.m_files[0]);
 	}
 	void deleteFile()
 	{

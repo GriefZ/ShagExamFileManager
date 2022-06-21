@@ -7,89 +7,89 @@
 
 namespace fs = std::filesystem;
 
-void createFile(fs::path fn)
-{
-    std::ofstream file;
-    file.open(fn);
-    file.close();
-}
-
-void deleteFile(fs::path fn)
-{
-    fs::remove(fn);
-}
-
-void showDirR(fs::path fn)
-{
-    std::cout << "\nCatalog " << fn << ":";
-    std::cout << "\n";
-    for (auto p : fs::recursive_directory_iterator(fn))
-        std::cout << "\n" << p;
-}
-
-int Menu(int size, std::string* punkts)
-{
-    std::cout << "\n\t\tmenu";
-    for (int i = 0; i < size; i++)
-    {
-        std::cout << "\n\t" << i + 1 << ". " << punkts[i];
-    }
-    std::cout << "\n\t0. Exit";
-    std::cout << "\n\tWhat you want? -> ";
-    int sel;
-    std::cin >> sel;
-    return sel;
-}
-
-int Menu(std::list<std::string>& punkts)
-{
-    int num = -1;
-    if (!punkts.empty())
-    {
-        int active = 1;
-        int key = 0;
-        while (key != 13)
-        {
-            num = 1;
-            system("cls");
-            showDirR("e:\\1\\");
-            std::cout << "\n\t\tMenu";
-            for (auto p = punkts.begin(); p != punkts.end(); p++)
-            {
-                if (active == num)
-                    std::cout << "\x1b[30;47m";
-                std::cout << "\n\t#" << num << ". " << *p;
-                if (active == num)
-                    std::cout << "\x1b[0m";
-                num++;
-            }
-            key = _getch();
-            if (key == 224)
-                key = _getch();
-            switch (key)
-            {
-            case 72:
-                active--;
-                if (active < 1)
-                    active = punkts.size();
-                break;
-            case 80:
-                active++;
-                if (active > punkts.size())
-                    active = 1;
-                break;
-            case 13:
-                return active;
-            }
-        }
-    }
-}
+//void createFile(fs::path fn)
+//{
+//    std::ofstream file;
+//    file.open(fn);
+//    file.close();
+//}
+//
+//void deleteFile(fs::path fn)
+//{
+//    fs::remove(fn);
+//}
+//
+//void showDirR(fs::path fn)
+//{
+//    std::cout << "\nCatalog " << fn << ":";
+//    std::cout << "\n";
+//    for (auto p : fs::recursive_directory_iterator(fn))
+//        std::cout << "\n" << p;
+//}
+//
+//int Menu(int size, std::string* punkts)
+//{
+//    std::cout << "\n\t\tmenu";
+//    for (int i = 0; i < size; i++)
+//    {
+//        std::cout << "\n\t" << i + 1 << ". " << punkts[i];
+//    }
+//    std::cout << "\n\t0. Exit";
+//    std::cout << "\n\tWhat you want? -> ";
+//    int sel;
+//    std::cin >> sel;
+//    return sel;
+//}
+//
+//int Menu(std::list<std::string>& punkts)
+//{
+//    int num = -1;
+//    if (!punkts.empty())
+//    {
+//        int active = 1;
+//        int key = 0;
+//        while (key != 13)
+//        {
+//            num = 1;
+//            system("cls");
+//            showDirR("e:\\1\\");
+//            std::cout << "\n\t\tMenu";
+//            for (auto p = punkts.begin(); p != punkts.end(); p++)
+//            {
+//                if (active == num)
+//                    std::cout << "\x1b[30;47m";
+//                std::cout << "\n\t#" << num << ". " << *p;
+//                if (active == num)
+//                    std::cout << "\x1b[0m";
+//                num++;
+//            }
+//            key = _getch();
+//            if (key == 224)
+//                key = _getch();
+//            switch (key)
+//            {
+//            case 72:
+//                active--;
+//                if (active < 1)
+//                    active = punkts.size();
+//                break;
+//            case 80:
+//                active++;
+//                if (active > punkts.size())
+//                    active = 1;
+//                break;
+//            case 13:
+//                return active;
+//            }
+//        }
+//    }
+//}
 
 int main(int args, char* argv[])
 {
     MainWnd mw;
     mw.LoopMsg();
-    std::list<std::string> menuItems
+   /* std::list<std::string> menuItems
     {
         "Create file",
         "Delete file",
@@ -185,6 +185,6 @@ int main(int args, char* argv[])
             break;
         }
 
-    }
+    }*/
 
 }
