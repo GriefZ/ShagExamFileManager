@@ -1,7 +1,6 @@
 #pragma once
 #include "ViewPort.h"
 #include <conio.h>
-#include <Windows.h>
 
 class MainWnd
 {
@@ -72,12 +71,12 @@ public:
 		m_footer.Show();
 		std::cout << "\n";
 	}
-	void LoopMsg()
+	void LoopMsg(fs::path sp)
 	{
 		ViewPort* aVP = &m_lvp;
 		int key = 0;
-		m_lvp.FillFiles("e:\\1");
-		m_rvp.FillFiles("d:\\");
+		m_lvp.FillFiles(sp);
+		m_rvp.FillFiles("");
 		while (true)
 		{
 			Show();

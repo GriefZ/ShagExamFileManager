@@ -5,6 +5,9 @@
 #include <fstream>
 #include <filesystem>
 #include <algorithm>
+#include <exception>
+#include <Windows.h>
+
 namespace fs = std::filesystem;
 class ViewPort
 {
@@ -69,12 +72,16 @@ public:
 	}
 	ViewPort& FillFiles(fs::path fn)
 	{
+		const fs::directory_options options = (
+			fs::directory_options::follow_directory_symlink |
+			fs::directory_options::skip_permission_denied
+			);
 		if (fs::exists(fn))
 		{
 			m_files.clear();
 			m_files.push_back(fn);
 			int i = 1;
-			for (auto p : fs::directory_iterator(m_files[0]))
+			for (auto p : fs::directory_iterator(m_files[0], options))
 			{
 				m_files.push_back(p);
 				i++;
@@ -88,14 +95,38 @@ public:
 	ViewPort& FillByDiscs()
 	{
 		m_files.clear();
-		m_files.push_back(fs::path());
-		for (char i = 'a'; i <= 'z'; i++)
+		fs::path tp;
+		tp.clear();
+		m_files.push_back(tp);
+
+		char name[255];
+		char alt_name[255 * 32];
+		int size_alt = 255 * 32;
+		HANDLE fnd = FindFirstVolumeA(name, 255);
+		if (fnd != INVALID_HANDLE_VALUE)
+		{
+			DWORD size_alt2;
+			do
+			{
+
+				GetVolumePathNamesForVolumeNameA(name, alt_name, size_alt, &size_alt2);
+				if (alt_name[0] == '\0')
+					continue;
+				m_files.push_back(alt_name);
+			} while (FindNextVolumeA(fnd, name, 255));
+		}
+		FindVolumeClose(fnd);
+		m_maxActive = m_files.size();
+		
+		//Old variant
+		/*for (char i = 'a'; i <= 'z'; i++)
 		{
 			std::string tmp{ i,':','\\' };
 			if (fs::exists(tmp))
 				m_files.push_back(tmp);
 		}
-		m_maxActive = m_files.size();
+		m_maxActive = m_files.size();*/
+
 		return *this;
 	}
 	ViewPort& Enter()
@@ -112,10 +143,6 @@ public:
 		if (m_active > m_maxActive)
 			m_active = m_maxActive;
 
-		/*system("cls");
-		std::cout << "\n\tis dir: " << (fs::is_directory((m_files[m_active - 1])) ? "true" : "false")
-			<< "\tsize " << fs::file_size(m_files[m_active - 1]) << "bytes" << std::endl;
-		system("pause");*/
 		return *this;
 	}
 	void copyFile(ViewPort& to)
@@ -126,12 +153,18 @@ public:
 	}
 	void deleteFile()
 	{
-		if(!fs::is_empty(m_files[m_active - 1]))
-			fs::remove_all(m_files[m_active-1]);
-		else
-			fs::remove(m_files[m_active - 1]);
+		std::string tmp = m_files[m_active - 1].string();
+		std::for_each(tmp.begin(), tmp.end(), Cir1251to866());
+		std::cout << "Do you realy want to delete " << tmp << " ?(y/n)";
+		std::getline(std::cin, tmp);
+		if (tmp == "y" || tmp == "Y" || tmp == "yes" || tmp == "Yes")
+			if (!fs::is_empty(m_files[m_active - 1]))
+				fs::remove_all(m_files[m_active - 1]);
+			else
+				fs::remove(m_files[m_active - 1]);
 		FillFiles(m_files[0]);
 	}
+	
 	void createFile()
 	{
 		std::cout << "\nInpun file name\n";
@@ -166,14 +199,11 @@ public:
 			if (m_active > m_maxActive)
 				m_active = 1;
 			break;
-			//case 13:
-			//	return active;
 		}
 		return *this;
 	}
 	std::string GetPath()
 	{
-		//std::cout << "parpath " << m_files[0].parent_path().string() << " rootpath " << m_files[0].root_path().string() << "||";
 		if (!m_files.empty())
 		{
 			std::string tmp = m_files[0].string();
@@ -252,7 +282,7 @@ public:
 	}
 	ViewPort operator+(const ViewPort& b)
 	{
-		ViewPort c(m_width + b.m_width, std::max(m_height, b.m_height));
+		ViewPort c(m_width + b.m_width, max(m_height, b.m_height));
 		for (int i = 0; i < c.m_height; i++)
 		{
 			std::string lvp = std::string(m_width, ' ');
